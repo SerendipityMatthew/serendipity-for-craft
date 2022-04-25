@@ -1,0 +1,10 @@
+{
+    "name": "Serendipity",
+    "fileName": "serendipity",
+    "author": "Matthew",
+    "authorEmail": "xuwanjin1991@gmail.com",
+    "description": "Example showcasing the capabilities of Craft eXtensions.",
+    "id": "me.xuwanjin.serendipity",
+    "api": "0.0.1",
+    "main": "index.html"
+}
