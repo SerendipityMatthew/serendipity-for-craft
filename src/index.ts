@@ -52,7 +52,6 @@ function hideConsole() {
 
 function clearConsole() {
   document.getElementById("consoleItems").innerHTML = ""
-  document.getElementById("consoleItemCount").style.visibility = "hidden"
 }
 
 
@@ -62,11 +61,7 @@ function logInPageConsoleMessage(msg : string) {
   newElement.className = "consoleContentItem"
   newElement.innerHTML = msg
   let consoleItemDiv = document.getElementById("consoleItems")
-  let consoleMsgCountDiv = document.getElementById("consoleItemCount")
   consoleItemDiv.append(newElement)
-  consoleMsgCountDiv.style.visibility = "visible"
-  consoleMsgCountDiv.style.visibility = "visible"
-  consoleMsgCountDiv.innerHTML = document.getElementById("consoleItems").childNodes.length.toString()
 }
 
 
