@@ -107,9 +107,9 @@ function navigateBackFromPage() {
   document.getElementById("navBar_backButton").style.visibility = "hidden"
   currentSubPageDiv = ""
 }
-document.getElementById("mainMenu_dataApi").onclick = async () => {
-  navigateToPage("dataApiDetails", "Data APIs")
-}
+// document.getElementById("mainMenu_dataApi").onclick = async () => {
+//   navigateToPage("dataApiDetails", "Data APIs")
+// }
 
 
 document.getElementById("navBar_backButton").onclick = async() => {
