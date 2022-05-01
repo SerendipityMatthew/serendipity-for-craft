@@ -1,6 +1,111 @@
-
-import { BlockLocation, CraftBlock, CraftBlockUpdate, CraftTextBlock, IndexLocation } from "@craftdocs/craft-extension-api";
+import {
+  BlockLocation,
+  CraftBlock,
+  CraftBlockUpdate,
+  CraftTextBlock,
+  ApiResponseError,
+  CraftBlockInsert,
+  ApiResponse,
+  IndexLocation,
+  CraftDataApi,
+} from "@craftdocs/craft-extension-api";
 import "./style.css";
+import { DocumentDataService } from "./mock/document_data";
+
+export const DocumentDataServiceInstance = new DocumentDataService();
+
+export class SerendipityCraftDataApi implements CraftDataApi {
+  constructor(private documentData = DocumentDataServiceInstance) {}
+
+  public async addBlocks(
+    blocks: CraftBlockInsert[],
+    location?: BlockLocation
+  ): Promise<ApiResponse<CraftBlock[]>> {
+    try {
+      const addedBlocks = this.documentData.addBlocks(blocks, location);
+
+      return {
+        status: "success",
+        data: addedBlocks,
+      };
+    } catch (err: unknown) {
+      return createResponseError(err);
+    }
+  }
+
+  public async updateBlocks(
+    blockModels: CraftBlockUpdate[]
+  ): Promise<ApiResponse<CraftBlock[]>> {
+    try {
+      const updatedBlocks = this.documentData.updateBlocks(blockModels);
+
+      return {
+        status: "success",
+        data: updatedBlocks,
+      };
+    } catch (err: unknown) {
+      return createResponseError(err);
+    }
+  }
+
+  public async moveBlocks(
+    blockIds: string[],
+    location: BlockLocation
+  ): Promise<ApiResponse<CraftBlock[]>> {
+    try {
+      const blocks = this.documentData.moveBlocks(blockIds, location);
+
+      return {
+        status: "success",
+        data: blocks,
+      };
+    } catch (err: unknown) {
+      return createResponseError(err);
+    }
+  }
+
+  public async deleteBlocks(
+    blockIds: string[]
+  ): Promise<ApiResponse<string[]>> {
+    try {
+      const deletedBlockIds = this.documentData.deleteBlocks(blockIds);
+
+      return {
+        status: "success",
+        data: deletedBlockIds,
+      };
+    } catch (err: unknown) {
+      return createResponseError(err);
+    }
+  }
+
+  public async getCurrentPage(): Promise<ApiResponse<CraftTextBlock>> {
+    try {
+      const page = this.documentData.getCurrentPage();
+
+      return {
+        status: "success",
+        data: page,
+      };
+    } catch (err: unknown) {
+      return createResponseError(err);
+    }
+  }
+}
+
+function createResponseError<T>(err: unknown): ApiResponseError<T> {
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === "string"
+      ? err
+      : "Failure";
+
+  return {
+    status: "error",
+    message,
+  };
+}
 
 /* ---- ENSURE DEV MODE WORKS ----- 
 You can run this extension locally with `npm run dev` in order to have faster iteration cycles.
@@ -9,7 +114,7 @@ With this helper function you can ensure that no exceptions occur for craft api 
 /* ---------------------------------*/
 
 function isCraftLibAvailable() {
-  return typeof craft !== 'undefined'
+  return typeof craft !== "undefined";
 }
 /* ---------------------------------*/
 /* ---- DARK/LIGHT MODE ----------- */
@@ -20,63 +125,52 @@ According to tailwind documentation, see : https://tailwindcss.com/docs/dark-mod
 */
 if (isCraftLibAvailable() == true) {
   craft.env.setListener((env) => {
-    if (env.colorScheme === 'dark' ) {
-      document.documentElement.classList.add('dark')
+    if (env.colorScheme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark')
+      document.documentElement.classList.remove("dark");
     }
   });
 }
-  
+
 /* ---------------------------------*/
 /* ------------ CONSOLE ----------- */
 /* ---------------------------------*/
 
 function showConsole() {
-  let element = document.getElementById("consoleContent")
-  let clearBtn = document.getElementById("consoleClear")
-  element.style.display = "block"
-  clearBtn.style.visibility = "visible"
-  document.getElementById("console").style.minHeight = "50%"
-  document.getElementById("console").classList.add("surfaceShadow")
+  let element = document.getElementById("consoleContent");
+  let clearBtn = document.getElementById("consoleClear");
+  element.style.display = "block";
+  clearBtn.style.visibility = "visible";
+  // document.getElementById("console").style.minHeight = "50%"
+  // document.getElementById("console").classList.add("surfaceShadow")
 }
 
 function hideConsole() {
-  let element = document.getElementById("consoleContent")
-  let clearBtn = document.getElementById("consoleClear")
-  element.style.display = "none"
-  clearBtn.style.visibility = "hidden"
-  document.getElementById("console").style.minHeight = "0"
-  document.getElementById("console").classList.remove("surfaceShadow")
+  let element = document.getElementById("consoleContent");
+  let clearBtn = document.getElementById("consoleClear");
+  element.style.display = "none";
+  clearBtn.style.visibility = "hidden";
+  // document.getElementById("console").style.minHeight = "0"
+  // document.getElementById("console").classList.remove("surfaceShadow")
 }
 
 function clearConsole() {
-  document.getElementById("consoleItems").innerHTML = ""
+  document.getElementById("consoleItems").innerHTML = "";
 }
 
-
-function logInPageConsoleMessage(msg : string) {
-  console.log("InPageConsole: " + msg)
-  let newElement = document.createElement("div")
-  newElement.className = "consoleContentItem"
-  newElement.innerHTML = msg
-  let consoleItemDiv = document.getElementById("consoleItems")
-  consoleItemDiv.append(newElement)
-}
-
-
-document.getElementById("openConsole").onclick = async () => {
-  let element = document.getElementById("consoleContent")
-  if (element.style.display == "none") {
-    showConsole()
-  } else { 
-   }
+function logInPageConsoleMessage(msg: string) {
+  console.log("InPageConsole: " + msg);
+  let newElement = document.createElement("div");
+  newElement.className = "consoleContentItem";
+  newElement.innerHTML = msg;
+  let consoleItemDiv = document.getElementById("consoleItems");
+  consoleItemDiv.append(newElement);
 }
 
 document.getElementById("consoleClear").onclick = async () => {
-  clearConsole()
-}
-
+  clearConsole();
+};
 
 /* ---------------------------------*/
 /* ---------- NAVIGATION ---------- */
@@ -85,37 +179,35 @@ document.getElementById("consoleClear").onclick = async () => {
 /*
 Store the id of the DIV  currently displayed
 */
-var currentSubPageDiv : string
+var currentSubPageDiv: string;
 
-function navigateToPage(divId : string, title:string) {
-  currentSubPageDiv = divId
-  document.getElementById("navBar_title").innerHTML = title
-  document.getElementById("mainMenu").style.display = "none"
-  document.getElementById(currentSubPageDiv).style.display = "block"
-  document.getElementById("navBar_backButton").style.visibility = "visible"
+function navigateToPage(divId: string, title: string) {
+  currentSubPageDiv = divId;
+  document.getElementById("navBar_title").innerHTML = title;
+  document.getElementById("mainMenu").style.display = "none";
+  document.getElementById(currentSubPageDiv).style.display = "block";
+  document.getElementById("navBar_backButton").style.visibility = "visible";
 }
 
 function navigateBackFromPage() {
-  document.getElementById("navBar_title").innerHTML = "Craft X Example"
-  document.getElementById("mainMenu").style.display = "block"
-  document.getElementById(currentSubPageDiv).style.display = "none"
-  document.getElementById("navBar_backButton").style.visibility = "hidden"
-  currentSubPageDiv = ""
+  document.getElementById("navBar_title").innerHTML = "Craft X Example";
+  document.getElementById("mainMenu").style.display = "block";
+  document.getElementById(currentSubPageDiv).style.display = "none";
+  document.getElementById("navBar_backButton").style.visibility = "hidden";
+  currentSubPageDiv = "";
 }
 // document.getElementById("mainMenu_dataApi").onclick = async () => {
 //   navigateToPage("dataApiDetails", "Data APIs")
 // }
 
-
-document.getElementById("navBar_backButton").onclick = async() => {
-  navigateBackFromPage()
-}
+document.getElementById("navBar_backButton").onclick = async () => {
+  navigateBackFromPage();
+};
 
 /* ---------------------------------*/
 /* ---------- DATA API ------------ */
 /* ---------------------------------*/
-let loadedBlocks : CraftBlock[] = []
-
+let loadedBlocks: CraftBlock[] = [];
 
 // document.getElementById("get_page_button").onclick = async () => {
 //   logInPageConsoleMessage("Get Page Button Pressed")
@@ -144,7 +236,8 @@ let loadedBlocks : CraftBlock[] = []
 // }
 
 document.getElementById("mainMenu_dataApi").onclick = async () => {
-  const result = await craft.dataApi.getCurrentPage();
+  let mockCraftDataApi = new SerendipityCraftDataApi();
+  const result = await mockCraftDataApi.getCurrentPage();
   const pageBlock = result.data;
   loadedBlocks = pageBlock.subblocks;
   const titleBlocks = loadedBlocks.filter((block) => {
@@ -160,21 +253,55 @@ document.getElementById("mainMenu_dataApi").onclick = async () => {
       textStyle == "title" || textStyle == "subtitle" || textStyle == "heading"
     );
   });
-  let stringArray = ["Matthew", "John", "Luke", "Mark", "Peter", "Paul", "John"];
-  stringArray.forEach(element => {
-      console.log("stringArray: element = " + element);
-      logInPageConsoleMessage(element.toString());
-  });
+  // let stringArray = [
+  //   "Matthew",
+  //   "John",
+  //   "Luke",
+  //   "Mark",
+  //   "Peter",
+  //   "Paul",
+  //   "John",
+  // ];
+  // stringArray.forEach((element) => {
+  //   logInPageConsoleMessage(element.toString());
+  // });
 
   var title = "";
+  console.log("stringArray: titleBlocks.length = " + titleBlocks.length);
+
   titleBlocks.forEach((element) => {
     if ("content" in element) {
-      var space = "";
-      element.content.forEach((textContent) => {
-        title += space + textContent.text;
-        logInPageConsoleMessage(space + title + " " + titleBlocks.length);
-      });
+      if ("style" in element) {
+        if ("textStyle" in element.style) {
+          var textStyle = element.style.textStyle;
+          console.log(
+            "InPageConsole: textStyle = " +
+              textStyle +
+              " for element " +
+              element
+          );
+
+          var space = "";
+          if (textStyle == "title") {
+            space += "";
+          }
+          if (textStyle == "subtitle") {
+            space += "&nbsp;&nbsp;";
+          }
+          if (textStyle == "heading") {
+            space += "&nbsp;&nbsp;&nbsp;&nbsp;";
+          }
+          element.content.forEach((textContent) => {
+            console.log("stringArray: title 11111111 = " + space + textContent.text);
+            logInPageConsoleMessage( space + textContent.text);
+          });
+        }
+      }
     }
   });
-  document.getElementById("openConsole").click();
+  let element = document.getElementById("consoleContent");
+  if (element.style.display == "none") {
+    showConsole();
+  } else {
+  }
 };
